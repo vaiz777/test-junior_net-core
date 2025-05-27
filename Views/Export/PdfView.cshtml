@@ -1,30 +1,37 @@
-@model List<ExportApp.Controllers.ExportController.Siswa>
+@model List<ExportApp.Models.Siswa>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>Laporan Siswa</title>
+    <title>Laporan Ranking Siswa</title>
     <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px; border: 1px solid black; }
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        h2 { text-align: center; }
     </style>
 </head>
 <body>
-    <h2>Laporan Nilai Siswa</h2>
+    <h2>Laporan Ranking Siswa</h2>
     <table>
         <thead>
             <tr>
+                <th>No</th>
                 <th>Nama</th>
                 <th>Nilai</th>
+                <th>Peringkat</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var siswa in Model)
+            @for (int i = 0; i < Model.Count; i++)
             {
                 <tr>
-                    <td>@siswa.Nama</td>
-                    <td>@siswa.Nilai</td>
+                    <td>@(i + 1)</td>
+                    <td>@Model[i].Nama</td>
+                    <td>@Model[i].Nilai</td>
+                    <td>@Model[i].RankNilai</td>
                 </tr>
             }
         </tbody>

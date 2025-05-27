@@ -1,59 +1,64 @@
-using Microsoft.AspNetCore.Mvc;
 using ClosedXML.Excel;
+using ExportApp.Data;
+using Microsoft.AspNetCore.Mvc;
 using Rotativa.AspNetCore;
-using ExportApp.Models;
+using System.IO;
 
 namespace ExportApp.Controllers
 {
     public class ExportController : Controller
     {
-        public IActionResult Index() => View();
+        private readonly SiswaRepository _repo;
 
-        // Export PDF dari view HTML
+        public ExportController(IConfiguration config)
+        {
+            _repo = new SiswaRepository(config);
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
         public IActionResult ExportToPdf()
         {
-            var data = GetDummyData();
+            var data = _repo.GetRanking();
             return new ViewAsPdf("PdfView", data)
             {
                 FileName = "report.pdf"
             };
         }
 
-        // Export Excel
         public IActionResult ExportToExcel()
         {
-            var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Laporan Siswa");
+            var data = _repo.GetRanking();
 
-            worksheet.Cell(1, 1).Value = "Nama";
-            worksheet.Cell(1, 2).Value = "Nilai";
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Ranking Siswa");
 
-            var data = GetDummyData();
+            // Header
+            worksheet.Cell(1, 1).Value = "Id";
+            worksheet.Cell(1, 2).Value = "Nama";
+            worksheet.Cell(1, 3).Value = "Nilai";
+            worksheet.Cell(1, 4).Value = "Peringkat";
+
+            // Data
             for (int i = 0; i < data.Count; i++)
             {
-                worksheet.Cell(i + 2, 1).Value = data[i].Nama;
-                worksheet.Cell(i + 2, 2).Value = data[i].Nilai;
+                var s = data[i];
+                worksheet.Cell(i + 2, 1).Value = s.Id;
+                worksheet.Cell(i + 2, 2).Value = s.Nama;
+                worksheet.Cell(i + 2, 3).Value = s.Nilai;
+                worksheet.Cell(i + 2, 4).Value = s.RankNilai;
             }
 
-            var stream = new MemoryStream();
+            using var stream = new MemoryStream();
             workbook.SaveAs(stream);
-            stream.Position = 0; // rewind sebelum dikirim ke client
+            stream.Position = 0;
 
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "report.xlsx");
-        }
-
-        private List<Siswa> GetDummyData() => new()
-        {
-            new Siswa { Nama = "Andi", Nilai = 85 },
-            new Siswa { Nama = "Budi", Nilai = 90 },
-            new Siswa { Nama = "Citra", Nilai = 88 }
-        };
-
-        // ✅ Hanya satu definisi
-        public class Siswa
-        {
-            public string Nama { get; set; } = string.Empty;
-            public int Nilai { get; set; }
+            return File(stream.ToArray(), 
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+                "report.xlsx");
         }
     }
 }
