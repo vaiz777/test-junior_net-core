@@ -1,0 +1,33 @@
+@model List<ExportApp.Controllers.ExportController.Siswa>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Laporan Siswa</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; border: 1px solid black; }
+    </style>
+</head>
+<body>
+    <h2>Laporan Nilai Siswa</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama</th>
+                <th>Nilai</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var siswa in Model)
+            {
+                <tr>
+                    <td>@siswa.Nama</td>
+                    <td>@siswa.Nilai</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>
